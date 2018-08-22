@@ -13,7 +13,8 @@ if [ -z $1 ]; then
     echo "-----"
     echo "This tool converts md files into html files and generates an index.html which links all generated html files. The tool keeps the respects the directories inside the source dir."
     echo "NOTES: Requires pandoc installed to work and the css files must be located in the destination dir"
-
+    exit
+fi
 
 wiki_dir="$2"
 wiki_source="$1"

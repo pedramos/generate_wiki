@@ -8,6 +8,13 @@
 
 ###
 
+if [ -z $1 ]; then
+    echo "Usage: ./generate source_dir dest_dir"
+    echo "-----"
+    echo "This tool converts md files into html files and generates an index.html which links all generated html files. The tool keeps the respects the directories inside the source dir."
+    echo "NOTES: Requires pandoc installed to work and the css files must be located in the destination dir"
+
+
 wiki_dir="$2"
 wiki_source="$1"
 
@@ -27,13 +34,13 @@ rm -rf ${2}/*.html
 for i in $result; do 
     clean_name=$(echo $i | sed 's#\.\./##g' | sed 's/\.md//g')
     file_name=$(echo $i | sed 's#\.\./##g' | sed 's#/#_#g')
-    pandoc --css ~/.markdown/template.css -s -S --toc -H ~/.markdown/pandoc.css   "${i}" > "${2}/${file_name}".html;
+    pandoc --css ${2}/template.css -s -S --toc -H ${2}/pandoc.css   "${i}" > "${2}/${file_name}".html;
     
     echo "+ [$clean_name](${file_name}.html)" >> index.md
 
 done
 
-pandoc --css ~/.markdown/template.css -s -S --toc -H ~/.markdown/pandoc.css   ${2}/index.md > ${2}/index.html;
+pandoc --css ${2}/template.css -s -S --toc -H ${2}/pandoc.css   ${2}/index.md > ${2}/index.html;
 
 
 

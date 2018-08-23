@@ -1,5 +1,6 @@
 #!/bin/bash
 
+
 ###
 
 #USAGE: gerenate_wiki.sh source_dir dest_dir
@@ -19,9 +20,11 @@ fi
 wiki_dir="$2"
 wiki_source="$1"
 
-cmd='find $2 -type f -name "*.md"'
+cd "${wiki_dir}"
 
-for i in $(cat $1/exclude_dir.lst); do 
+cmd="find ${1} -type f -name \"*.md\""
+
+for i in $(cat "${wiki_source}/exclude_dir.lst"); do 
     cmd="$cmd -not -path \"$i*\""
 
 done
@@ -29,21 +32,50 @@ done
 
 result=$(eval "$cmd" | sort )
 
+mkdir old
+mkdir old/temp
+IFS=$'\n'
+for i in $(cat pages.lst); do mv "${i}" ./old/temp; done
+tar -czvf "old/$(date '+%Y%m%d_%H%M%S').tar" old/temp/*
+
+
 echo "" > index.md
-rm -rf ${2}/*.html
+echo "" > pages.lst.temp
+
+
+
+
+current_dir=$(pwd)
 
 for i in $result; do 
     clean_name=$(echo $i | sed 's#\.\./##g' | sed 's/\.md//g')
     file_name=$(echo $i | sed 's#\.\./##g' | sed 's#/#_#g')
-    pandoc --css ${2}/template.css -s -S --toc -H ${2}/pandoc.css   "${i}" > "${2}/${file_name}".html;
-    
-    echo "+ [$clean_name](${file_name}.html)" >> index.md
+    work_dir="${current_dir}/$(dirname $i)"
+    md_file_name=$(basename -- "${i}")
 
+
+    #echo cd "${work_dir}" \&\& pandoc --verbose  --css ~/.markdown/template.css -s -S --toc -H ~/.markdown/pandoc.css   "${md_file_name}" -o "${current_dir}/${file_name}".html
+    cd "${work_dir}"
+    
+    for j in $(egrep  "\!\[.*\]" "${md_file_name}" | awk -F'[\(\)]' '{print $2}' 2>/dev/null ); do
+        image_dir="${current_dir}/$(dirname "${j}")"
+        mkdir -p "${image_dir}"
+        cp "${j}" "${image_dir}/"
+        echo "${image_dir}" >> "${current_dir}/pages.lst.temp"
+    done
+
+    pandoc --verbose  --css ~/.markdown/template.css -s -S --toc -H ~/.markdown/pandoc.css  "${md_file_name}" -o "${file_name}".html && mv "${file_name}.html" "${current_dir}" 
+    echo "${current_dir}/${file_name}.html" >> "${current_dir}/pages.lst.temp"
+
+
+    echo "+ [$clean_name](${file_name}.html)" >> "${current_dir}/index.md"
 done
 
-pandoc --css ${2}/template.css -s -S --toc -H ${2}/pandoc.css   ${2}/index.md > ${2}/index.html;
+
+cd "${current_dir}"; pandoc --css ~/.markdown/template.css -s -S --toc -H ~/.markdown/pandoc.css   index.md -o index.html;
 
 
-
+cat pages.lst.temp > pages.lst
+rm -rf pages.lst.temp
 
 

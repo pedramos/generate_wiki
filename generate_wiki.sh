@@ -64,7 +64,7 @@ for i in $result; do
         echo "${image_dir}" >> "${current_dir}/pages.lst.temp"
     done
 
-    pandoc --verbose  --css ~/.markdown/template.css -s -S --toc -H ~/.markdown/pandoc.css  "${md_file_name}" -o "${file_name}".html && mv "${file_name}.html" "${current_dir}" 
+    pandoc --verbose --self-contained --css ~/.markdown/template.css -s -S --toc -H ~/.markdown/pandoc.css  "${md_file_name}" -o "${file_name}".html && mv "${file_name}.html" "${current_dir}" 
     echo "${current_dir}/${file_name}.html" >> "${current_dir}/pages.lst.temp"
 
 
@@ -72,7 +72,7 @@ for i in $result; do
 done
 
 
-cd "${current_dir}"; pandoc --css ~/.markdown/template.css -s -S --toc -H ~/.markdown/pandoc.css   index.md -o index.html;
+cd "${current_dir}"; pandoc --self-contained --css ~/.markdown/template.css -s -S --toc -H ~/.markdown/pandoc.css   index.md -o index.html;
 
 
 cat pages.lst.temp > pages.lst

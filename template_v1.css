@@ -19,7 +19,7 @@ html, button, input, select, textarea {
 
 html, body, button, input, select, textarea {
     color: #57534A;
-    font-family: "Arial",serif;
+    font-family: "PT Serif","Calluna","Arno Pro",serif;
     font-size: 18px;
     font-weight: 300;
 }
@@ -52,7 +52,7 @@ body {
 
 
 h1, h2, h3, dt {
-    color: #124191;
+    color: #423F37;
     font-weight: 700;
 }
 
@@ -90,7 +90,7 @@ h6 {
 
 
 a {
-    color: #124191;
+    color: #8DB359;
     cursor: pointer;
     outline: 0 none;
     text-decoration: underline;
@@ -98,7 +98,7 @@ a {
 
 a:hover {
     outline: 0 none;
-    color: #0B2757;
+    color: #739544;
 }
 
 
@@ -107,7 +107,7 @@ p, pre {
 }
 
 code, kbd, pre, samp {
-    font-family: courier new,monospace,serif;
+    font-family: monospace,serif;
     font-size: 1em;
     margin: 0;
     padding: 0;
@@ -119,8 +119,7 @@ pre {
 }
 
 pre {
-    /*background-color: #F8F5F0;*/
-    background-color: #E7ECF4;
+    background-color: #F8F5F0;
     font-size: 0.7rem;
     overflow-x: auto;
     padding: 1.3rem;
@@ -132,7 +131,7 @@ pre, code, kbd, samp {
     margin: 0;
 }
 code, kbd, pre, samp {
-    font-family: courier new,monospace,serif;
+    font-family: monospace,serif;
 }
 
 code {

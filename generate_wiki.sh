@@ -82,5 +82,5 @@ cd "${current_dir}"; pandoc --self-contained --css ~/.markdown/template.css -s -
 
 cat pages.lst.temp > pages.lst
 rm -rf pages.lst.temp
-
+rm -rf md_files.lst
 

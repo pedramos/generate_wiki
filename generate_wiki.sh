@@ -31,6 +31,7 @@ done
 
 
 result=$(eval "$cmd" | sort )
+echo $result | tr '[:blank:]' '\n'  > md_files.lst
 
 mkdir old
 mkdir old/temp
@@ -74,6 +75,10 @@ done
 
 cd "${current_dir}"; pandoc --self-contained --css ~/.markdown/template.css -s -S --toc -H ~/.markdown/pandoc.css   index.md -o index.html;
 
+python BuildBetterIndex.py > better_index.md
+
+
+cd "${current_dir}"; pandoc --self-contained --css ~/.markdown/template.css -s -S --toc -H ~/.markdown/pandoc.css   better_index.md -o better_index.html;
 
 cat pages.lst.temp > pages.lst
 rm -rf pages.lst.temp

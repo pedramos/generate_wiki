@@ -42,7 +42,7 @@ pages.lst
 When running the script it will always generate an `old` dir where it stores a backup of the old wiki.
 
 
-##Requirements
+## Requirements
 
 + Pandoc
 + Python.

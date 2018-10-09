@@ -40,7 +40,7 @@ for i in $(cat pages.lst); do mv "${i}" ./old/temp; done
 tar -czvf "old/$(date '+%Y%m%d_%H%M%S').tar" old/temp/*
 
 
-echo "" > index.md
+echo "" legacy_index.md
 echo "" > pages.lst.temp
 
 
@@ -69,16 +69,16 @@ for i in $result; do
     echo "${current_dir}/${file_name}.html" >> "${current_dir}/pages.lst.temp"
 
 
-    echo "+ [$clean_name](${file_name}.html)" >> "${current_dir}/index.md"
+    echo "+ [$clean_name](${file_name}.html)" >> "${current_dir}/legacy_index.md"
 done
 
 
+cd "${current_dir}"; pandoc --self-contained --css ~/.markdown/template.css -s -S --toc -H ~/.markdown/pandoc.css   legacy_index.md -o legacy_index.html;
+
+python BuildBetterIndex.py > index.md
+
+
 cd "${current_dir}"; pandoc --self-contained --css ~/.markdown/template.css -s -S --toc -H ~/.markdown/pandoc.css   index.md -o index.html;
-
-python BuildBetterIndex.py > better_index.md
-
-
-cd "${current_dir}"; pandoc --self-contained --css ~/.markdown/template.css -s -S --toc -H ~/.markdown/pandoc.css   better_index.md -o better_index.html;
 
 cat pages.lst.temp > pages.lst
 rm -rf pages.lst.temp

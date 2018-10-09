@@ -166,70 +166,70 @@ if [ -z $1 ]; then
     exit
 fi
 
-wiki_dir="$2"
-wiki_source="$1"
+wiki_dir="$(pwd)/$2"
+wiki_source="$(pwd)/$1"
+
+cp *.css "${wiki_dir}" 2>/dev/null
 
 cd "${wiki_dir}"
 
-cmd="find ${1} -type f -name \"*.md\""
+cmd="find ${wiki_source} -type f -name \"*.md\""
 
-touch "${wiki_source}/exclude_dir.lst"
+touch "${wiki_dir}/exclude_dir.lst"
 
-for i in $(cat "${wiki_source}/exclude_dir.lst"); do 
-    cmd="$cmd -not -path \"$i*\""
-
+for i in $(cat "${wiki_dir}/exclude_dir.lst"); do 
+    cmd="$cmd -not -path \"${wiki_source}/$i*\""
 done
 
 
 result=$(eval "$cmd" | sort )
-echo $result | tr '[:blank:]' '\n'  > md_files.lst
+echo $result | tr '[:blank:]' '\n' | sed "s#${wiki_source}/##g"  > md_files.lst
 
 mkdir -p old/temp
 
+touch pages.lst
+
 IFS=$'\n'
 for i in $(cat pages.lst); do mv "${i}" ./old/temp; done
-tar -czf "old/$(date '+%Y%m%d_%H%M%S').tar" old/temp/*
-rm -rf old/temp/*
+tar -czf "old/$(date '+%Y%m%d_%H%M%S').tar" old/temp/* 2>/dev/null
+rm -rf old/temp/* 2>/dev/null
 
 echo "" legacy_index.md
 echo "" > pages.lst.temp
 
-
-
-
-current_dir=$(pwd)
+#wiki_dir=$(pwd)
 
 for i in $result; do 
     clean_name=$(echo $i | sed 's#\.\./##g' | sed 's/\.md//g')
-    file_name=$(echo $i | sed 's#\.\./##g' | sed 's#/#_#g')
-    work_dir="${current_dir}/$(dirname $i)"
+    file_name=$(echo $i | sed "s#${wiki_source}/##g" | sed 's#\.\./##g' |  sed 's#/#_#g')
+    work_dir=$(dirname "${i}")
     md_file_name=$(basename -- "${i}")
 
 
-    #echo cd "${work_dir}" \&\& pandoc --verbose  --css ~/.markdown/template.css -s -S --toc -H ~/.markdown/pandoc.css   "${md_file_name}" -o "${current_dir}/${file_name}".html
     cd "${work_dir}"
     
-    for j in $(egrep  "\!\[.*\]" "${md_file_name}" | awk -F'[\(\)]' '{print $2}' 2>/dev/null ); do
-        image_dir="${current_dir}/$(dirname "${j}")"
-        mkdir -p "${image_dir}"
-        cp "${j}" "${image_dir}/"
-        echo "${image_dir}" >> "${current_dir}/pages.lst.temp"
-    done
+    echo "STARTING: ${work_dir}/${md_file_name}"
+    pandoc --verbose --self-contained --css "${wiki_dir}/template.css" -s -S --toc -H "${wiki_dir}/pandoc.css"  "${md_file_name}" -o "${file_name}".html && mv "${file_name}.html" "${wiki_dir}"  
+    if [ "$(echo $?)" != "0" ]; then
+        echo "ERROR: Processing file ${md_file_name} file with the error above"
+    else
+        echo "OK: ${md_file_name}"
+        echo "${wiki_dir}/${file_name}.html" >> "${wiki_dir}/pages.lst.temp"
+    fi
 
-    pandoc --verbose --self-contained --css ~/.markdown/template.css -s -S --toc -H ~/.markdown/pandoc.css  "${md_file_name}" -o "${file_name}".html && mv "${file_name}.html" "${current_dir}" 
-    echo "${current_dir}/${file_name}.html" >> "${current_dir}/pages.lst.temp"
 
-
-    echo "+ [$clean_name](${file_name}.html)" >> "${current_dir}/legacy_index.md"
+    echo "+ [$clean_name](${file_name}.html)" >> "${wiki_dir}/legacy_index.md"
 done
 
 
-cd "${current_dir}"; pandoc --self-contained --css ~/.markdown/template.css -s -S --toc -H ~/.markdown/pandoc.css   legacy_index.md -o legacy_index.html;
+cd "${wiki_dir}"; pandoc --self-contained --css "${wiki_dir}/template.css" -s -S --toc -H "${wiki_dir}/pandoc.css"   legacy_index.md -o legacy_index.html;
 
-python BuildBetterIndex.py > index.md
+generate_index > index.md
+
+#cd "${wiki_dir}"; pandoc --self-contained --css "${wiki_dir}/template.css" -s -S --toc -H "${wiki_dir}/pandoc.css"   index.md -o index.html;
 
 
-cd "${current_dir}"; pandoc --self-contained --css ~/.markdown/template.css -s -S --toc -H ~/.markdown/pandoc.css   index.md -o index.html;
+cd "${wiki_dir}"; pandoc --self-contained --css "${wiki_dir}/template.css" -s -S  -H "${wiki_dir}/pandoc.css"   index.md -o index.html;
 
 cat pages.lst.temp > pages.lst
 rm -rf pages.lst.temp

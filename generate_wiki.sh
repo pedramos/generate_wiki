@@ -140,7 +140,7 @@ for i in pages:
 
 def print_tree(section,list):
     if section.get_section_name()=="/":
-        print "#Nokia DevOps Wiki Index"
+        print "# TAG::::::TITLE #"
         
     elif len(section.get_child_section())==0:
         print "\t"*(section.get_level()-1)+'1. '+section.get_md_link() 
@@ -165,6 +165,7 @@ if [ -z $1 ]; then
     echo "NOTES: Requires pandoc installed to work and the css files must be located in the destination dir"
     echo "The file with the ignored dirs must be named exclude_dir.lst and placed into the dest_dir."
     echo "The dirs listed in exclude_dir.lst must be relative to the dest_dir"
+    echo "title.txt in the dest_dir stores the wiki title"
     exit
 fi
 
@@ -199,6 +200,8 @@ rm -rf old/temp/* 2>/dev/null
 echo "" legacy_index.md
 echo "" > pages.lst.temp
 
+wiki_name=$(echo wiki_dir | sed "s#.*/##g")
+
 #wiki_dir=$(pwd)
 
 for i in $result; do
@@ -229,6 +232,12 @@ done
 cd "${wiki_dir}"; pandoc --self-contained --css "${wiki_dir}/template.css" -s -S --toc -H "${wiki_dir}/pandoc.css"   legacy_index.md -o legacy_index.html;
 
 generate_index > index.md
+
+touch title.txt
+
+title=$(cat title.txt)
+
+sed -i "s/# TAG::::::TITLE #/# ${title}/g" index.md 
 
 #cd "${wiki_dir}"; pandoc --self-contained --css "${wiki_dir}/template.css" -s -S --toc -H "${wiki_dir}/pandoc.css"   index.md -o index.html;
 

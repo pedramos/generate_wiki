@@ -33,12 +33,12 @@ done
 result=$(eval "$cmd" | sort )
 echo $result | tr '[:blank:]' '\n'  > md_files.lst
 
-mkdir old
-mkdir old/temp
+mkdir -p old/temp
+
 IFS=$'\n'
 for i in $(cat pages.lst); do mv "${i}" ./old/temp; done
-tar -czvf "old/$(date '+%Y%m%d_%H%M%S').tar" old/temp/*
-
+tar -czf "old/$(date '+%Y%m%d_%H%M%S').tar" old/temp/*
+rm -rf old/temp/*
 
 echo "" legacy_index.md
 echo "" > pages.lst.temp

@@ -163,6 +163,8 @@ if [ -z $1 ]; then
     echo "-----"
     echo "This tool converts md files into html files and generates an index.html which links all generated html files. The tool keeps the respects the directories inside the source dir."
     echo "NOTES: Requires pandoc installed to work and the css files must be located in the destination dir"
+    echo "The file with the ignored dirs must be named exclude_dir.lst and placed into the dest_dir."
+    echo "The dirs listed in exclude_dir.lst must be relative to the dest_dir"
     exit
 fi
 
@@ -199,7 +201,9 @@ echo "" > pages.lst.temp
 
 #wiki_dir=$(pwd)
 
-for i in $result; do 
+for i in $result; do
+
+    
     clean_name=$(echo $i | sed 's#\.\./##g' | sed 's/\.md//g')
     file_name=$(echo $i | sed "s#${wiki_source}/##g" | sed 's#\.\./##g' |  sed 's#/#_#g')
     work_dir=$(dirname "${i}")

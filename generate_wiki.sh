@@ -89,7 +89,7 @@ def set_visible_parents(section,list):
 
 
 
-pages=open("md_files.lst","r")
+pages=open("lib/md_files.lst","r")
 section_list={}
 section_list["/"]=section("/",None,0,True)
 
@@ -163,7 +163,7 @@ if [ -z $1 ]; then
     echo "-----"
     echo "This tool converts md files into html files and generates an index.html which links all generated html files. The tool keeps the respects the directories inside the source dir."
     echo "NOTES: Requires pandoc installed to work and the css files must be located in the destination dir"
-    echo "The file with the ignored dirs must be named exclude_dir.lst and placed into the dest_dir."
+    echo "The file with the ignored dirs must be named exclude_dir.lst and placed into the dest_dir/bin."
     echo "The dirs listed in exclude_dir.lst must be relative to the dest_dir"
     echo "title.txt in the dest_dir stores the wiki title"
     exit
@@ -172,33 +172,35 @@ fi
 wiki_dir="$(pwd)/$2"
 wiki_source="$(pwd)/$1"
 
-cp *.css "${wiki_dir}" 2>/dev/null
+mkdir -p "${wiki_dir}/lib"
+
+cp *.css "${wiki_dir}/lib" 2>/dev/null
 
 cd "${wiki_dir}"
 
 cmd="find ${wiki_source} -type f -name \"*.md\""
 
-touch "${wiki_dir}/exclude_dir.lst"
+touch "${wiki_dir}/lib/exclude_dir.lst"
 
-for i in $(cat "${wiki_dir}/exclude_dir.lst"); do 
+for i in $(cat "${wiki_dir}/lib/exclude_dir.lst"); do 
     cmd="$cmd -not -path \"${wiki_source}/$i*\""
 done
 
 
 result=$(eval "$cmd" | sort )
-echo $result | tr '[:blank:]' '\n' | sed "s#${wiki_source}/##g"  > md_files.lst
+echo $result | tr '[:blank:]' '\n' | sed "s#${wiki_source}/##g"  > lib/md_files.lst
 
 mkdir -p old/temp
 
-touch pages.lst
+touch lib/pages.lst
 
 IFS=$'\n'
-for i in $(cat pages.lst); do mv "${i}" ./old/temp; done
+for i in $(cat lib/pages.lst); do mv "${i}" ./old/temp; done
 tar -czf "old/$(date '+%Y%m%d_%H%M%S').tar" old/temp/* 2>/dev/null
 rm -rf old/temp/* 2>/dev/null
 
-echo "" legacy_index.md
-echo "" > pages.lst.temp
+echo "" > lib/legacy_index.md
+echo "" > lib/pages.lst.temp
 
 wiki_name=$(echo wiki_dir | sed "s#.*/##g")
 
@@ -216,36 +218,36 @@ for i in $result; do
     cd "${work_dir}"
     
     echo "STARTING: ${work_dir}/${md_file_name}"
-    pandoc --verbose --self-contained --css "${wiki_dir}/template.css" -s -S --toc -H "${wiki_dir}/pandoc.css"  "${md_file_name}" -o "${file_name}".html && mv "${file_name}.html" "${wiki_dir}"  
+    pandoc --verbose --self-contained --css "${wiki_dir}/lib/template.css" -s -S --toc -H "${wiki_dir}/lib/pandoc.css"  "${md_file_name}" -o "${file_name}".html && mv "${file_name}.html" "${wiki_dir}"  
     if [ "$(echo $?)" != "0" ]; then
         echo "ERROR: Processing file ${md_file_name} file with the error above"
     else
         echo "OK: ${md_file_name}"
-        echo "${wiki_dir}/${file_name}.html" >> "${wiki_dir}/pages.lst.temp"
+        echo "${wiki_dir}/${file_name}.html" >> "${wiki_dir}/lib/pages.lst.temp"
     fi
 
 
-    echo "+ [$clean_name](${file_name}.html)" >> "${wiki_dir}/legacy_index.md"
+    echo "+ [$clean_name](${file_name}.html)" >> "${wiki_dir}/lib/legacy_index.md"
 done
 
 
-cd "${wiki_dir}"; pandoc --self-contained --css "${wiki_dir}/template.css" -s -S --toc -H "${wiki_dir}/pandoc.css"   legacy_index.md -o legacy_index.html;
+cd "${wiki_dir}"; pandoc --self-contained --css "${wiki_dir}/lib/template.css" -s -S --toc -H "${wiki_dir}/lib/pandoc.css"   lib/legacy_index.md -o legacy_index.html;
 
-generate_index > index.md
+generate_index > lib/index.md
 
-touch title.txt
+touch lib/title.txt
 
-title=$(cat title.txt)
+title=$(cat lib/title.txt)
 
-sed -i "s/# TAG::::::TITLE #/# ${title}/g" index.md 
+sed -i "s/# TAG::::::TITLE #/# ${title}/g" lib/index.md 
 
 #cd "${wiki_dir}"; pandoc --self-contained --css "${wiki_dir}/template.css" -s -S --toc -H "${wiki_dir}/pandoc.css"   index.md -o index.html;
 
 
-cd "${wiki_dir}"; pandoc --self-contained --css "${wiki_dir}/template.css" -s -S  -H "${wiki_dir}/pandoc.css"   index.md -o index.html;
+cd "${wiki_dir}"; pandoc --self-contained --css "${wiki_dir}/lib/template.css" -s -S  -H "${wiki_dir}/lib/pandoc.css"   lib/index.md -o index.html;
 
-cat pages.lst.temp > pages.lst
-rm -rf pages.lst.temp
-rm -rf md_files.lst
+cat lib/pages.lst.temp > lib/pages.lst
+rm -rf lib/pages.lst.temp
+rm -rf lib/md_files.lst
 
 

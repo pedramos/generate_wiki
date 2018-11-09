@@ -1,12 +1,3 @@
-/*
-   This document has been created with Marked.app <http://marked2app.com>
-   Please leave this notice in place, along with any additional credits below.
-   ---------------------------------------------------------------
-   Title: Kultiad
-   Author: Peter Sziebig - @bigpe; Modified by Kieran Healy - @kjhealy
-   Description: Easy to read. Pandoc style elements. 
-*/
-
 
 
 
@@ -43,9 +34,9 @@ body:after {
 body {
     padding-left: 4rem;
     padding-right: 4rem;
-    margin-left: auto;
+    margin-left: 0;
     margin-right: auto;
-    max-width: 44rem;
+    max-width: 60rem;
     display: block;
 }
 
